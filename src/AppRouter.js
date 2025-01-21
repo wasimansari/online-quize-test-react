@@ -9,11 +9,15 @@ import Login from './components/Login';
 import Signup from './components/Signup';
 import OnlineQuize from './components/OnlineQuize';
 import Question from './components/Question';
+import { useFirebase } from './context/Firebase';
+    // const isAuthenticated = () => {
+    //   return localStorage.getItem('isLoggedIn') === 'true';
+    // };
 
-    const isAuthenticated = () => {
-      return localStorage.getItem('isLoggedIn') === 'true';
-    };
 
+    const AppRouter = ()=> {
+      const { loginStatus} = useFirebase();
+      console.log(loginStatus);
     const router = createBrowserRouter([
       {
         path: '/',
@@ -27,7 +31,7 @@ import Question from './components/Question';
       },
       {
         path: '/dashboard',
-        element: isAuthenticated() ? <Dashboard /> : <Login />, // Protect Dashboard route
+        element: loginStatus ? <Dashboard /> : <Login />, // Protect Dashboard route
         children: [
           {
             path: 'contact',
@@ -53,7 +57,7 @@ import Question from './components/Question';
         errorElement: <Error />,
       },
     ]);
-        const AppRouter = ()=> {
+        
             return <RouterProvider router={router} />;
           }
 
