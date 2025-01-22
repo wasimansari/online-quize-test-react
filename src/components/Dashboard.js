@@ -6,6 +6,7 @@ import { useLocation } from "react-router-dom";
 import OnlineStatus from "./OnlineStatus";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useFirebase } from "../context/Firebase";
+import Registration from "./Registration";
 
 const Dashboard = () => {
   const location = useLocation();
@@ -14,12 +15,15 @@ const Dashboard = () => {
   const [userName, setUserName] = useState();
   let isChildRoute = location.pathname !== "/dashboard";
   const { loginStatus, handleLogout } = useFirebase();
+  const [isRegistrationVisible, setIsRegistrationVisible] = useState(false);
+
   console.log('dashboad login', loginStatus.email);
   useEffect(() => {
     $("#myButton").click(() => {
       alert("Button clicked using jQuery!");
     });
-  setUserName(getNameFromEmail(loginStatus.email))
+  setUserName(getNameFromEmail(loginStatus.email));
+  setIsRegistrationVisible(false)
   }, [loginStatus.email]);
 
   const getNameFromEmail = (email)=> {
@@ -46,6 +50,9 @@ const Dashboard = () => {
       // Add logic to redirect to login page if necessary
     }
   };
+  const handleRegistration = ()=>{
+    setIsRegistrationVisible(true);
+};
 
   return (
     <div className="wrapper d-flex align-items-stretch">
@@ -87,6 +94,9 @@ const Dashboard = () => {
           </ul>
         </div>
         {!isChildRoute && <Home status={onlineStatus} />}
+           {
+            !isChildRoute && isRegistrationVisible ? <Registration /> : <h4 className="d-flex justify-content-center align-items-center"> Befor online test you should registration first:  <button className="btn btn-primary" onClick={handleRegistration}>Registration</button></h4>
+           }
         <Outlet />
       </div>
     </div>
