@@ -10,6 +10,7 @@ import Signup from './components/Signup';
 import OnlineQuize from './components/OnlineQuize';
 import Question from './components/Question';
 import { useFirebase } from './context/Firebase';
+import ForgotPassword from './components/ForgotPassword';
     // const isAuthenticated = () => {
     //   return localStorage.getItem('isLoggedIn') === 'true';
     // };
@@ -27,6 +28,11 @@ import { useFirebase } from './context/Firebase';
       {
         path: 'signup',
         element: <Signup />,
+        errorElement: <Error />,
+      },
+      {
+        path: 'forgot',
+        element: <ForgotPassword />,
         errorElement: <Error />,
       },
       {

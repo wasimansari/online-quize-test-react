@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import Navigation from "./Navigation";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Home from "./Home";
 import { useLocation } from "react-router-dom";
 import OnlineStatus from "./OnlineStatus";
@@ -11,14 +11,22 @@ const Dashboard = () => {
   const location = useLocation();
   const onlineStatus = OnlineStatus();
   const navigate = useNavigate();
+  const [userName, setUserName] = useState();
   let isChildRoute = location.pathname !== "/dashboard";
   const { loginStatus, handleLogout } = useFirebase();
-
+  console.log('dashboad login', loginStatus.email);
   useEffect(() => {
     $("#myButton").click(() => {
       alert("Button clicked using jQuery!");
     });
-  }, []);
+  setUserName(getNameFromEmail(loginStatus.email))
+  }, [loginStatus.email]);
+
+  const getNameFromEmail = (email)=> {
+    const username = email.split('@')[0];
+    const name = username.charAt(0).toUpperCase() + username.slice(1);
+    return name;
+  }
 
   const headingStyle = {
     width: "100%",
@@ -33,6 +41,7 @@ const Dashboard = () => {
         navigate("/", { replace: true });
       }
     } else {
+      
       console.log("Redirecting to login...");
       // Add logic to redirect to login page if necessary
     }
@@ -63,7 +72,7 @@ const Dashboard = () => {
             </li>
             <li className="nav-item">
               <a className="nav-link" href="#">
-                <FontAwesomeIcon icon="fa-user" /> <span>User Name : </span>
+                <FontAwesomeIcon icon="fa-user" /> <span>User Name : {userName} </span>
               </a>
             </li>
             <li className="nav-item">

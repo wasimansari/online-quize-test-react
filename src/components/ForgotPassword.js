@@ -1,41 +1,24 @@
 import React, { useState } from "react";
-import '../css/login.css';
 import { useNavigate } from "react-router-dom";
-import { Link } from 'react-router-dom';
-import { useFirebase } from "../context/Firebase";
 
-const Login = () => {
-const [email, setEmail] = useState();
-const [password, setPassword] = useState();
-const [error, setError] = useState('');
-const navigate = useNavigate();
-const firebase = useFirebase();
-    const handleLogin = async(e)=>{
-        e.preventDefault();
-        try
-        {
-            await firebase.signInUserWithEmailAndPassword(email,password);
-            alert('User signed In successfully!');
-            navigate('/dashboard');
-        }catch (error) {
-            console.error('Error signing up:', error.message);
-            alert(error.message);
-          }
+const ForgotPassword = () => {
 
+    const [email, setEmail] = useState();
+    const [password, setPassword] = useState();
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
+
+    const handlReset = () => {
+        console.log("Hi");
+        navigate("/");
     }
-
-    const handleForgotPassword = (e)=>{
-        e.preventDefault();
-        navigate('/forgot');
-    }
-
     return (
         <div className="global-container">
             <div className="card login-form">
                 <div className="card-body">
-                    <h3 className="card-title text-center">Login Dashboad</h3>
+                    <h3 className="card-title text-center">Reset Password</h3>
                     <div className="card-text">
-                        <form onSubmit={handleLogin}>
+                        <form onSubmit={handlReset}>
                             <div className="form-group">
                                 <label htmlFor="exampleInputEmail1">Email address</label>
                                 <input className="form-control"
@@ -47,7 +30,6 @@ const firebase = useFirebase();
                             </div>
                             <div className="form-group">
                                 <label htmlFor="exampleInputPassword1">Password</label>
-                                <a href="#" style={{ float: 'right', fontSize: '12px' }} onClick={handleForgotPassword}>Forgot password?</a>
                                 <input className="form-control"
                                     type="password"
                                     value={password}
@@ -55,11 +37,7 @@ const firebase = useFirebase();
                                     required
                                 />
                             </div>
-                            <button type="submit" className="btn btn-primary btn-block">Sign in</button>
-
-                            <div className="sign-up">
-                                Don't have an account? <Link to="signup">SignUp</Link>
-                            </div>
+                            <button type="submit" className="btn btn-primary btn-block">Reset Password</button>
                         </form>
                         {error && <div style={{ color: 'red' }}>{error}</div>}
                     </div>
@@ -68,4 +46,5 @@ const firebase = useFirebase();
         </div>
     )
 }
-export default Login;
+
+export default ForgotPassword;
