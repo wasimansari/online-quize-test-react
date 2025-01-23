@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
-
+import { useFirebase } from "../context/Firebase";
 
 const validate = (values) => {
     const errors = {};
-    console.log("my form ",values)
+    // console.log("my form ",values)
     if (!values.firstName) errors.firstName = "First name is required";
   if (!values.lastName) errors.lastName = "Last name is required";
   if (!values.motherName) errors.motherName = "Mother's name is required";
@@ -22,20 +22,15 @@ const validate = (values) => {
 };
 
 
-const Registration = (props) => {
-    console.log("my form regis ",props.value)
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: value
-        }));
-    };
-    const handelForm = () => {
-        console.log("form");
+const Registration = ({onValueChange}) => {
+    const firebase = useFirebase();
+    console.log(firebase)
+    const handleCancel = ()=>{
+        onValueChange.handleRegistration(false);
     }
-    if (props.value) return (
+
+    console.log("my form regis ",onValueChange)
+    if (onValueChange.isRegistrationVisible) return (
         <Formik
       initialValues={{
         firstName: "",
@@ -52,7 +47,8 @@ const Registration = (props) => {
         email: ""
       }}
       validate={validate}
-      onSubmit={(values) => {
+      onSubmit={async(values) => {
+        await firebase.handleNewRegistration(values);
         alert("Form submitted successfully with values: " + JSON.stringify(values, null, 12));
       }}
     >
@@ -260,7 +256,7 @@ const Registration = (props) => {
                           </div>
 
                           <div className="d-flex justify-content-end pt-3">
-                            <button type="button" className="btn btn-warning ms-2 mr-3">
+                            <button type="button" className="btn btn-warning ms-2 mr-3" onClick={handleCancel}>
                               Cancel
                             </button>
                             <button type="submit" className="btn btn-success ms-2">

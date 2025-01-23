@@ -1,7 +1,7 @@
 import React,{createContext, useContext, useState,useEffect} from "react";
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged,signOut } from "firebase/auth";
-import { getDatabase,set, ref } from "firebase/database";
+import { getDatabase,set, ref, get } from "firebase/database";
 
 const firebaseConfig = {
     apiKey: "AIzaSyC5lfHfPbSh3bTkqzQyPW2vdM2098Nj2bk",
@@ -19,6 +19,7 @@ const FirebaseContext = createContext(null);
 const database = getDatabase(firebaseApp);
 export const useFirebase = ()=> useContext(FirebaseContext);
 
+export { database, ref, set, get };
 
 export const FirebaseProvider = (props)=>{
     const [loginStatus, setLoginStatus] = useState(null);
@@ -44,7 +45,7 @@ export const FirebaseProvider = (props)=>{
 
     useEffect(() => {
         const unsubscribe = onAuthStateChange();
-        return () => unsubscribe(); // Cleanup listener
+        return () => unsubscribe();
       }, []);
 
     const putData=(key,data)=>{
@@ -61,10 +62,35 @@ export const FirebaseProvider = (props)=>{
         }
       };
 
+      const handleNewRegistration = async (values) => {
+        try {
+          const userId = Date.now().toString();
+          await set(ref(database, 'registrationDetails/' + userId), {
+            firstName: values.firstName,
+            lastName: values.lastName,
+            motherName: values.motherName,
+            fatherName: values.fatherName,
+            address: values.address,
+            gender: values.gender,
+            state: values.state,
+            city: values.city,
+            dob: values.dob,
+            pincode: values.pincode,
+            classRoll: values.classRoll,
+            email: values.email,
+          });
+      
+          console.log('User registered successfully!');
+        } catch (error) {
+          console.error('Error registering user: ', error);
+        }
+      };
+
     return(
         <FirebaseContext.Provider value={{
             signupUserWithEmailAndPassword,putData,signInUserWithEmailAndPassword,
             loginStatus,onAuthStateChange,handleLogout,
+            handleNewRegistration
             }}>
             {props.children}
         </FirebaseContext.Provider>

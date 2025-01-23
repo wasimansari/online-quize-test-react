@@ -7,6 +7,8 @@ import OnlineStatus from "./OnlineStatus";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useFirebase } from "../context/Firebase";
 import Registration from "./Registration";
+import { database } from "../context/Firebase";
+import { ref,get } from "../context/Firebase";
 
 const Dashboard = () => {
   const location = useLocation();
@@ -17,7 +19,15 @@ const Dashboard = () => {
   const isAdminRoute = location.pathname == "/dashboard";
   const { loginStatus, handleLogout } = useFirebase();
   const [isRegistrationVisible, setIsRegistrationVisible] = useState(false);
-  
+  const [registrationData, setRegistrationData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const getNameFromEmail = (email)=> {
+    const username = email.split('@')[0];
+    const name = username.charAt(0).toUpperCase() + username.slice(1);
+    return name;
+  }
+
+
   useEffect(() => {
     $("#myButton").click(() => {
       alert("Button clicked using jQuery!");
@@ -26,12 +36,37 @@ const Dashboard = () => {
   setIsRegistrationVisible(false)
   }, [loginStatus.email]);
 
-  const getNameFromEmail = (email)=> {
-    const username = email.split('@')[0];
-    const name = username.charAt(0).toUpperCase() + username.slice(1);
-    return name;
+  useEffect(() => {
+    const fetchRegistrationData = async () => {
+      try {
+        const usersRef = ref(database, 'registrationDetails/');
+        const snapshot = await get(usersRef);
+
+        if (snapshot.exists()) {
+          setRegistrationData(snapshot.val());
+          console.log("Fetched data:", snapshot.val());
+          console.log("fetched registration : ",registrationData)
+        } else {
+          console.log("No registration data found.");
+        }
+      } catch (error) {
+        console.error("Error fetching registration data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRegistrationData();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
+  if (!registrationData) {
+    return <div>No data available</div>;
+  }
+
+  
   const headingStyle = {
     width: "100%",
     margin: "-23px 0 0 0",
@@ -45,19 +80,16 @@ const Dashboard = () => {
         navigate("/", { replace: true });
       }
     } else {
-      
       console.log("Redirecting to login...");
-      // Add logic to redirect to login page if necessary
     }
   };
-  const handleRegistration = ()=>{
-    setIsRegistrationVisible(true);
+  const handleRegistration = (value)=>{
+    setIsRegistrationVisible(value);
 };
 
   return (
     <div className="wrapper d-flex align-items-stretch">
       <Navigation />
-
       <div id="content" className="mt-4 pl-0">
         <div style={headingStyle} className="shadow-sm p-2 bg-white rounded">
           <ul className="nav justify-content-end">
@@ -95,7 +127,7 @@ const Dashboard = () => {
         </div>
         {!isChildRoute && <Home status={onlineStatus} />}
         {isAdminRoute &&  (
-            isRegistrationVisible ? (<Registration value={isRegistrationVisible} />) : (<h4 className="d-flex justify-content-center align-items-center"> Befor online test you should registration first:  <button className="btn btn-primary" onClick={handleRegistration}>Registration</button></h4>)
+            isRegistrationVisible ? (<Registration onValueChange={{handleRegistration,isRegistrationVisible}} />) : (<h4 className="d-flex justify-content-center align-items-center"> Befor online test you should registration first:  <button className="btn btn-primary" onClick={handleRegistration}>Registration</button></h4>)
            
           )}
         <Outlet />
