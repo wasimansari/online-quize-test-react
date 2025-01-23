@@ -37,7 +37,7 @@ const OnlineQuize = () => {
                     </ol>
                     <div  className="row">
                         <div className="col-md-4">
-                    <select class="custom-select" id="inputGroupSelect04">
+                    <select className="custom-select" id="inputGroupSelect04">
                     <option selected>Choose Class</option>
                     <option value="1">One</option>
                     <option value="2">Two</option>

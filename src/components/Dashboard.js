@@ -13,11 +13,11 @@ const Dashboard = () => {
   const onlineStatus = OnlineStatus();
   const navigate = useNavigate();
   const [userName, setUserName] = useState();
-  let isChildRoute = location.pathname !== "/dashboard";
+  const isChildRoute = location.pathname !== "/dashboard";
+  const isAdminRoute = location.pathname == "/dashboard";
   const { loginStatus, handleLogout } = useFirebase();
   const [isRegistrationVisible, setIsRegistrationVisible] = useState(false);
-
-  console.log('dashboad login', loginStatus.email);
+  
   useEffect(() => {
     $("#myButton").click(() => {
       alert("Button clicked using jQuery!");
@@ -94,9 +94,10 @@ const Dashboard = () => {
           </ul>
         </div>
         {!isChildRoute && <Home status={onlineStatus} />}
-           {
-            !isChildRoute && isRegistrationVisible ? <Registration /> : <h4 className="d-flex justify-content-center align-items-center"> Befor online test you should registration first:  <button className="btn btn-primary" onClick={handleRegistration}>Registration</button></h4>
-           }
+        {isAdminRoute &&  (
+            isRegistrationVisible ? (<Registration value={isRegistrationVisible} />) : (<h4 className="d-flex justify-content-center align-items-center"> Befor online test you should registration first:  <button className="btn btn-primary" onClick={handleRegistration}>Registration</button></h4>)
+           
+          )}
         <Outlet />
       </div>
     </div>
