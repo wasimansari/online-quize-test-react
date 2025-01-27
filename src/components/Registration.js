@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import { useFirebase } from "../context/Firebase";
+import DistrictNameBlockName from "../utills/DistrictNameBlockName";
 
 const validate = (values) => {
     const errors = {};
@@ -15,21 +16,30 @@ const validate = (values) => {
   if (!values.city) errors.city = "City is required";
   if (!values.dob) errors.dob = "DOB is required";
   if (!values.pincode) errors.pincode = "Pincode is required";
-  if (!values.classRoll) errors.classRoll = "Class Roll is required";
+  if (!values.studentClass) errors.studentClass = "Student class is required";
   if (!values.email) errors.email = "Email is required";
 
     return errors;
 };
 
 
+
 const Registration = ({onValueChange}) => {
     const firebase = useFirebase();
-    console.log(firebase)
+    const [state,setState] = useState();
+    const [district, setDistrict] = useState();
+    // console.log(firebase)
+
     const handleCancel = ()=>{
         onValueChange.handleRegistration(false);
     }
 
-    console.log("my form regis ",onValueChange)
+    const handleDistrict = (e) => {
+      const selectedCity = e.target.value; // Get the selected city's value
+      console.log("Selected city:", selectedCity); // Log or process the selected city
+    };
+
+    // console.log("my form regis ",onValueChange)
     if (onValueChange.isRegistrationVisible) return (
         <Formik
       initialValues={{
@@ -43,7 +53,7 @@ const Registration = ({onValueChange}) => {
         city: "",
         dob: "",
         pincode: "",
-        classRoll: "",
+        studentClass: "",
         email: ""
       }}
       validate={validate}
@@ -52,7 +62,7 @@ const Registration = ({onValueChange}) => {
         alert("Form submitted successfully with values: " + JSON.stringify(values, null, 12));
       }}
     >
-      {() => (
+      {({setFieldValue, values}) => (
         <Form style={{ marginTop: "0px", paddingTop: "0px" }}>
           <section className="h-80">
             <div className="container">
@@ -180,20 +190,24 @@ const Registration = ({onValueChange}) => {
                           {/* State and City Select */}
                           <div className="row">
                             <div className="col-md-6 mb-2">
-                              <Field as="select" name="state" className="form-control">
+                              <Field as="select" name="state" className="form-control" value={values.state}
+                             onChange={(e) => setFieldValue("state", e.target.value)}>
                                 <option value="">State</option>
-                                <option value="1">Option 1</option>
-                                <option value="2">Option 2</option>
-                                <option value="3">Option 3</option>
+                                <option value="Bihar">Bihar</option>
+                                <option value="Jharkhand">Jharkhand</option>
+                                <option value="West Bengal">West Bengal</option>
                               </Field>
-                              <ErrorMessage name="state" component="div" style={{ color: "red",fontSize:"11px"}} />
+                              {values.state && (
+                                <small className="text-muted">
+                                  You selected state {values.state}.
+                                </small>
+                              )}
+                              {/* <ErrorMessage name="state" component="div" style={{ color: "red",fontSize:"11px"}} /> */}
                             </div>
                             <div className="col-md-6 mb-2">
-                              <Field as="select" name="city" className="form-control">
-                                <option value="">City</option>
-                                <option value="1">Option 1</option>
-                                <option value="2">Option 2</option>
-                                <option value="3">Option 3</option>
+                              <Field as="select" name="city" className="form-control" value={district} onChange={(e) => setDistrict(e.target.value)}>
+                               <option value="">Select City</option>
+                                <DistrictNameBlockName selectedState={[values.state,district]} />
                               </Field>
                               <ErrorMessage name="city" component="div" style={{ color: "red",fontSize:"11px" }} />
                             </div>
@@ -227,15 +241,21 @@ const Registration = ({onValueChange}) => {
                             <div className="col-md-6">
                               <div className="form-outline mb-2">
                                 <label className="form-label" htmlFor="form3Example99">
-                                  Class Roll No
+                                  Student Class
                                 </label>
-                                <Field
+                                {/* <Field
                                   type="number"
                                   id="form3Example99"
                                   name="classRoll"
                                   className="form-control"
-                                />
-                                <ErrorMessage name="classRoll" component="div" style={{ color: "red",fontSize:"11px" }} />
+                                /> */}
+                                <Field as="select" name="studentClass" className="form-control">
+                                <option value="">Student Class</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                              </Field>
+                                <ErrorMessage name="studentClass" component="div" style={{ color: "red",fontSize:"11px" }} />
                               </div>
                             </div>
                             <div className="col-md-6">

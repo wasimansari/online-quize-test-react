@@ -66,10 +66,10 @@ export const FirebaseProvider = (props)=>{
         console.log("login status",loginStatus);
         try {
           // Extract email from the registration form
-          const { email, classRoll } = values;
+          const { email, studentClass } = values;
       
           // Step 1: Fetch all registration data from Firebase
-          const allRegistrationsRef = ref(database, `registrations/${classRoll}`);
+          const allRegistrationsRef = ref(database, `registrations/${studentClass}`);
           const allRegistrationsSnapshot = await get(allRegistrationsRef);
       
           let isEmailTaken = false;
@@ -114,7 +114,7 @@ export const FirebaseProvider = (props)=>{
       
           // Step 5: Proceed with the registration if email is not taken
           const userId = Date.now().toString(); // Unique ID for the user
-          const classRef = ref(database, `registrations/${classRoll}`); // Firebase path for the specific class
+          const classRef = ref(database, `registrations/${studentClass}`); // Firebase path for the specific class
       
           // Create a new registration object for the student
           const newRegistration = {
@@ -128,7 +128,7 @@ export const FirebaseProvider = (props)=>{
             city: values.city,
             dob: values.dob,
             pincode: values.pincode,
-            classRoll: values.classRoll,
+            studentClass: values.studentClass,
             email: values.email,
             id: userId
           };
@@ -138,8 +138,8 @@ export const FirebaseProvider = (props)=>{
           const classData = classSnapshot.exists() ? classSnapshot.val() : {};
       
           // Add the new registration under the correct class
-          classData[classRoll] = classData[classRoll] || []; // Ensure array exists for classRoll
-          classData[classRoll].push(newRegistration);
+          classData[studentClass] = classData[studentClass] || []; // Ensure array exists for classRoll
+          classData[studentClass].push(newRegistration);
       
           // Step 6: Save the updated data back to Firebase
           await set(classRef, classData);
