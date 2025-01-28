@@ -231,7 +231,7 @@ export const districtDetails = {
     ]
 }
 
-export const bloackDetails = {
+export const blockDetails = {
         "blockName": [
         {
             "blockId": 19,
