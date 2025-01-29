@@ -27,28 +27,23 @@ const validate = (values) => {
 
 const Registration = ({onValueChange}) => {
     const firebase = useFirebase();
-    const [state,setState] = useState();
-    //const [district, setDistrict] = useState();
-    // console.log(firebase)
-
-    const [values, setValues] = useState({ state: "", city: "" });
+    const [state,setState] = useState("");
     const [district, setDistrict] = useState("");
-    const [block, setBlock] = useState("");
-
-    const setFieldValue = (field, value) => {
-      setValues((prevValues) => ({ ...prevValues, [field]: value }));
-    };
+    console.log(firebase.states)
 
     const handleCancel = ()=>{
         onValueChange.handleRegistration(false);
     }
 
-    // const handleDistrict = (e) => {
-    //   const selectedCity = e.target.value; // Get the selected city's value
-    //   console.log("Selected city:", selectedCity); // Log or process the selected city
-    // };
+    const handleStateChange = (e)=>{
+      setState(e.target.value);
+      setDistrict("");
+    }
 
-    // console.log("my form regis ",onValueChange)
+    const handleDistrictChange = (e)=>{
+      setDistrict(e.target.value);
+    }
+
     if (onValueChange.isRegistrationVisible) return (
         <Formik
       initialValues={{
@@ -60,6 +55,7 @@ const Registration = ({onValueChange}) => {
         gender: "",
         state: "",
         city: "",
+        block:"",
         dob: "",
         pincode: "",
         studentClass: "",
@@ -71,7 +67,7 @@ const Registration = ({onValueChange}) => {
         alert("Form submitted successfully with values: " + JSON.stringify(values, null, 12));
       }}
     >
-      {({setFieldValue, values}) => (
+      {() => (
         <Form style={{ marginTop: "0px", paddingTop: "0px" }}>
           <section className="h-80">
             <div className="container">
@@ -199,36 +195,36 @@ const Registration = ({onValueChange}) => {
                           {/* State and City Select */}
                           <div className="row">
                             <div className="col-md-6 mb-2">
-                              <Field as="select" name="state" className="form-control" value={values.state}
-                             onChange={(e) => {setFieldValue("state", e.target.value);setDistrict("")}}>
+                              <Field as="select" name="state" className="form-control" value={state}
+                             onChange={(e) => {handleStateChange(e)}}>
                                 <option value="">State</option>
                                 <option value="Bihar">Bihar</option>
                                 <option value="Jharkhand">Jharkhand</option>
                                 <option value="West Bengal">West Bengal</option>
                               </Field>
-                              {values.state && (
+                              {/* {values.state && (
                                 <small className="text-muted">
                                   You selected state {values.state}.
                                 </small>
-                              )}
+                              )} */}
                                 {/* <ErrorMessage name="state" component="div" style={{ color: "red",fontSize:"11px"}} /> */}
                             </div>
-                            <div className="col-md-6 mb-2">
+                            {/* <div className="col-md-6 mb-2">
                               <Field as="select" name="city" className="form-control" value={district} onChange={(e) => setDistrict(e.target.value)}>
-                               <option value="">Select City</option>
-                                <DistrictNameBlockName selectedState={values.state} />
-                              </Field>
+                               <option value="">Select District</option> */}
+                                <DistrictNameBlockName selectedState={state} onDistrictChange={handleDistrictChange} />
+                              {/* </Field>
                               <ErrorMessage name="city" component="div" style={{ color: "red",fontSize:"11px" }} />
-                            </div>
+                            </div> */}
 
 
-                            <div className="col-md-6 mb-2">
+                            {/* <div className="col-md-6 mb-2">
                               <Field as="select" name="city" className="form-control" value={block} onChange={(e) => setBlock(e.target.value)}>
-                               <option value="">Select Block</option>
-                               <Block selectedDistrict={district} />
-                              </Field>
+                               <option value="">Select Block</option> */}
+                               <Block state={state} district={district} />
+                              {/* </Field>
                               <ErrorMessage name="city" component="div" style={{ color: "red",fontSize:"11px" }} />
-                            </div>
+                            </div> */}
                           </div>
 
                           

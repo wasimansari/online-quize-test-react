@@ -1,27 +1,27 @@
 import React from "react";
 import { blockDetails } from "./district";
+import { Field } from "formik";
 
-const Block = ({selectedDistrict})=>{
-    let blockList = [];  // Make sure blockList is initialized as an empty array
+const Block = ({ state,district }) => {
+    if(!state || !district) return null;
 
-// Debugging the selectedDistrict value and blockDetails
-console.log("Selected District:", selectedDistrict);
-
-
-// Iterate over blockDetails.blockName
-blockDetails.blockName.forEach(block => {
-
-    
-    if (block.districtName === selectedDistrict) {
-        console.log("Match found:", block);  // Log when a match is found
-        blockList.push(block);
-    }
-});
-
-// After the loop, check the blockList
-console.log("Block List after loop:", blockList);
-    return(
-        <h1>Hi</h1>
+    const filterData = blockDetails.blockName.filter(data=>data.districtName.toLowerCase().trim() === district.toLowerCase().trim());
+    console.log("block",blockDetails.blockName);
+    console.log("filter Data :",filterData)
+    const item = filterData.map(data=>data.blockName)
+    console.log("filter item:",item);
+    return (
+        <div className="col-md-6 mb-2">
+            <Field as="select" name="block" className="form-control">
+                <option value="">Select Block</option>
+                {
+                    filterData.map((block)=>{
+                        return <option key={block.blockId}>{block.blockName}</option>;
+                    })
+                }
+            </Field>
+            {/* <ErrorMessage name="block" component="div" style={{ color: "red", fontSize: "11px" }} /> */}
+        </div>
     )
 }
 

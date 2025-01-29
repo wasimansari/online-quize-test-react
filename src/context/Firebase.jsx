@@ -2,6 +2,7 @@ import React,{createContext, useContext, useState,useEffect} from "react";
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged,signOut } from "firebase/auth";
 import { getDatabase,set, ref, get } from "firebase/database";
+import { stateList } from "../utills/Api";
 
 const firebaseConfig = {
     apiKey: "AIzaSyC5lfHfPbSh3bTkqzQyPW2vdM2098Nj2bk",
@@ -22,7 +23,35 @@ export const useFirebase = ()=> useContext(FirebaseContext);
 export { database, ref, set, get };
 
 export const FirebaseProvider = (props)=>{
+  console.log(stateList)
     const [loginStatus, setLoginStatus] = useState(null);
+    const [states, setStates] = useState([]);
+    const [districts, setDistricts] = useState([]);
+    const [blocks, setBlocks] = useState([]);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          // Replace with your API URL
+          const response = await fetch("https://github.com/sab99r/Indian-States-And-Districts/blob/master/states-and-districts.json");
+          const data = await response.json();
+          
+          setStates(data.states);
+          console.log("states: ",states)
+          setDistricts(data.districts);
+          setBlocks(data.blocks);
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchData();
+    }, []);
+
     const signupUserWithEmailAndPassword=(email,password)=>{
         return createUserWithEmailAndPassword(firebaseAuth,email,password);
     }
@@ -155,7 +184,7 @@ export const FirebaseProvider = (props)=>{
         <FirebaseContext.Provider value={{
             signupUserWithEmailAndPassword,putData,signInUserWithEmailAndPassword,
             loginStatus,onAuthStateChange,handleLogout,
-            handleNewRegistration
+            handleNewRegistration,states
             }}>
             {props.children}
         </FirebaseContext.Provider>
