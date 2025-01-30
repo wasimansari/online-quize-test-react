@@ -19,7 +19,7 @@ const DistrictNameBlockName = React.memo(({ selectedState,onDistrictChange }) =>
   return (
     <>
       <div className="col-md-6 mb-2">
-        <Field as="select" name="district" className="form-control" onChange={onDistrictChange}>
+        <Field as="select" name="district" className="form-control" value={district} onChange={onDistrictChange}>
           <option value="">Select District</option>
           {selectedState === "Bihar" &&
             districtDetails.Bihar.map((dist) => (

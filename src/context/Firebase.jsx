@@ -92,60 +92,48 @@ export const FirebaseProvider = (props)=>{
       };
 
       const handleNewRegistration = async (values) => {
-        console.log("login status",loginStatus);
+        console.log("login status", loginStatus);
         try {
-          // Extract email from the registration form
           const { email, studentClass } = values;
-      
-          // Step 1: Fetch all registration data from Firebase
           const allRegistrationsRef = ref(database, `registrations/${studentClass}`);
           const allRegistrationsSnapshot = await get(allRegistrationsRef);
-      
-          let isEmailTaken = false;
-          // let isLoginEmail = true;
-          
-            
+          let isEmailTaken;
+          if(loginStatus.email===email){
+            isEmailTaken = false;
+          }else{
+            isEmailTaken = true;
+            alert('The email must match your login email to register.');
+            return;
+          }
           if (allRegistrationsSnapshot.exists()) {
             const allClassesData = allRegistrationsSnapshot.val();
-      
-            // Step 2: Loop through each class and filter out the emails
             for (let classKey in allClassesData) {
               const classData = allClassesData[classKey];
-              
-              // Step 3: Check each student in the class for the email
               for (let studentKey in classData) {
                 const student = classData[studentKey];
-                
-                // If email matches, set isEmailTaken to true
-
-                if (student.email === email)
-                  {
-                    isEmailTaken = true;
-                    break; // Break the loop if email is found
-                  }
-                  if (email !== loginStatus.email) {
-                    console.error('Email must match the login email for registration.');
-                    alert('The email must match your login email to register.');
-                    return; // Don't proceed with registration
-                  }
+                if (student.email === email) {
+                  isEmailTaken = true;
+                  break;
+                }
+                if (email !== loginStatus.email) {
+                  console.error('Email must match the login email for registration.');
+                  alert('The email must match your login email to register.');
+                  return;
+                }
               }
       
-              if (isEmailTaken) break; // Stop checking other classes once we find the email
+              if (isEmailTaken) break;
             }
           }
-
-          // Step 4: If email is already taken, stop the registration
+      
           if (isEmailTaken) {
             console.error('Email is already registered!');
             alert('This email is already registered!');
-            return; // Don't proceed with registration
+            return;
           }
       
-          // Step 5: Proceed with the registration if email is not taken
-          const userId = Date.now().toString(); // Unique ID for the user
-          const classRef = ref(database, `registrations/${studentClass}`); // Firebase path for the specific class
-      
-          // Create a new registration object for the student
+          const userId = Date.now().toString();
+          const classRef = ref(database, `registrations/${studentClass}`);
           const newRegistration = {
             firstName: values.firstName,
             lastName: values.lastName,
@@ -155,6 +143,7 @@ export const FirebaseProvider = (props)=>{
             gender: values.gender,
             state: values.state,
             city: values.city,
+            block: values.block,
             dob: values.dob,
             pincode: values.pincode,
             studentClass: values.studentClass,
@@ -162,24 +151,18 @@ export const FirebaseProvider = (props)=>{
             id: userId
           };
       
-          // Fetch existing data for the class, if it exists
           const classSnapshot = await get(classRef);
           const classData = classSnapshot.exists() ? classSnapshot.val() : {};
-      
-          // Add the new registration under the correct class
-          classData[studentClass] = classData[studentClass] || []; // Ensure array exists for classRoll
+          // Ensure studentClass is an array
+          classData[studentClass] = classData[studentClass] || [];
           classData[studentClass].push(newRegistration);
-      
-          // Step 6: Save the updated data back to Firebase
           await set(classRef, classData);
-      
           console.log('User registered successfully!');
           alert('Registration successful!');
         } catch (error) {
           console.error('Error registering user: ', error);
         }
       };
-
     return(
         <FirebaseContext.Provider value={{
             signupUserWithEmailAndPassword,putData,signInUserWithEmailAndPassword,

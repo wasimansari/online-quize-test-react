@@ -9,6 +9,7 @@ import { useFirebase } from "../context/Firebase";
 import Registration from "./Registration";
 import { database } from "../context/Firebase";
 import { ref,get } from "../context/Firebase";
+import Card from "../utills/Card";
 
 const Dashboard = () => {
   const location = useLocation();
@@ -39,7 +40,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchRegistrationData = async () => {
       try {
-        const usersRef = ref(database, 'registrationDetails/');
+        const usersRef = ref(database, 'registrations/');
         const snapshot = await get(usersRef);
 
         if (snapshot.exists()) {
@@ -127,9 +128,10 @@ const Dashboard = () => {
         </div>
         {!isChildRoute && <Home status={onlineStatus} />}
         {isAdminRoute &&  (
-            isRegistrationVisible ? (<Registration onValueChange={{handleRegistration,isRegistrationVisible}} />) : (<h4 className="d-flex justify-content-center align-items-center"> Befor online test you should registration first:  <button className="btn btn-primary" onClick={handleRegistration}>Registration</button></h4>)
+            isRegistrationVisible ? (<Registration onValueChange={{handleRegistration,isRegistrationVisible}} />) : (<Card onSelect={handleRegistration}/>) //<h4 className="d-flex justify-content-center align-items-center"> Befor online test you should registration first:  <button className="btn btn-primary" onClick={handleRegistration}>Registration</button></h4>)
            
           )}
+          {/* <Card/> */}
         <Outlet />
       </div>
     </div>

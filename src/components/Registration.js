@@ -4,48 +4,58 @@ import { useFirebase } from "../context/Firebase";
 import DistrictNameBlockName from "../utills/DistrictNameBlockName";
 import Block from "../utills/Block";
 
+// Modified Validation
 const validate = (values) => {
     const errors = {};
-    // console.log("my form ",values)
     if (!values.firstName) errors.firstName = "First name is required";
-  if (!values.lastName) errors.lastName = "Last name is required";
-  if (!values.motherName) errors.motherName = "Mother's name is required";
-  if (!values.fatherName) errors.fatherName = "Father's name is required";
-  if (!values.address) errors.address = "Address is required";
-  if (!values.gender) errors.gender = "Gender is required";
-  if (!values.state) errors.state = "State is required";
-  if (!values.city) errors.city = "City is required";
-  if (!values.dob) errors.dob = "DOB is required";
-  if (!values.pincode) errors.pincode = "Pincode is required";
-  if (!values.studentClass) errors.studentClass = "Student class is required";
-  if (!values.email) errors.email = "Email is required";
+    if (!values.lastName) errors.lastName = "Last name is required";
+    if (!values.motherName) errors.motherName = "Mother's name is required";
+    if (!values.fatherName) errors.fatherName = "Father's name is required";
+    if (!values.address) errors.address = "Address is required";
+    if (!values.gender) errors.gender = "Gender is required";
+    if (!values.state) errors.state = "State is required";
+    if (!values.district) errors.district = "District is required";
+    if (!values.dob) errors.dob = "DOB is required";
+    if (!values.pincode) errors.pincode = "Pincode is required";
+    if (!values.studentClass) errors.studentClass = "Student class is required";
+    if (!values.email) {
+        errors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(values.email)) { // Validate email format
+        errors.email = "Email is invalid";
+    }
 
     return errors;
 };
 
 
 
-const Registration = ({onValueChange}) => {
-    const firebase = useFirebase();
-    const [state,setState] = useState("");
-    const [district, setDistrict] = useState("");
-    console.log(firebase.states)
+const Registration = ({ onValueChange }) => {
+  const firebase = useFirebase();
+  const [state, setState] = useState("");
+  const [district, setDistrict] = useState("");
 
-    const handleCancel = ()=>{
-        onValueChange.handleRegistration(false);
-    }
+  // Handling state change
+  const handleStateChange = (e, setFieldValue) => {
+    const selectedState = e.target.value;
+    setState(selectedState);
+    setFieldValue("state", selectedState); // Update Formik's field value for 'state'
+    setDistrict(""); // Reset district when state changes
+    setFieldValue("district", ""); // Reset district in Formik
+  };
 
-    const handleStateChange = (e)=>{
-      setState(e.target.value);
-      setDistrict("");
-    }
+  // Handling district change
+  const handleDistrictChange = (e, setFieldValue) => {
+    const selectedDistrict = e.target.value;
+    setDistrict(selectedDistrict);
+    setFieldValue("district", selectedDistrict); // Update Formik's field value for 'district'
+  };
 
-    const handleDistrictChange = (e)=>{
-      setDistrict(e.target.value);
-    }
+  const handleCancel = () => {
+    onValueChange.handleRegistration(false);
+  };
 
-    if (onValueChange.isRegistrationVisible) return (
-        <Formik
+  if (onValueChange.isRegistrationVisible) return (
+    <Formik
       initialValues={{
         firstName: "",
         lastName: "",
@@ -53,21 +63,22 @@ const Registration = ({onValueChange}) => {
         fatherName: "",
         address: "",
         gender: "",
-        state: "",
+        state: "",  // Ensure this is initialized
         city: "",
-        block:"",
+        block: "",
         dob: "",
         pincode: "",
         studentClass: "",
-        email: ""
+        email: "",
+        district: ""  // Ensure district is initialized as well
       }}
       validate={validate}
-      onSubmit={async(values) => {
+      onSubmit={async (values) => {
         await firebase.handleNewRegistration(values);
         alert("Form submitted successfully with values: " + JSON.stringify(values, null, 12));
       }}
     >
-      {() => (
+      {({ setFieldValue }) => (
         <Form style={{ marginTop: "0px", paddingTop: "0px" }}>
           <section className="h-80">
             <div className="container">
@@ -99,7 +110,7 @@ const Registration = ({onValueChange}) => {
                                   name="firstName"
                                   className="form-control"
                                 />
-                                <ErrorMessage name="firstName" component="div" style={{ color: "red",fontSize:"11px" }} />
+                                <ErrorMessage name="firstName" component="div" style={{ color: "red", fontSize: "11px" }} />
                               </div>
                             </div>
                             <div className="col-md-6 mb-2">
@@ -113,7 +124,7 @@ const Registration = ({onValueChange}) => {
                                   name="lastName"
                                   className="form-control"
                                 />
-                                <ErrorMessage name="lastName" component="div" style={{ color: "red",fontSize:"11px" }} />
+                                <ErrorMessage name="lastName" component="div" style={{ color: "red", fontSize: "11px" }} />
                               </div>
                             </div>
                           </div>
@@ -130,7 +141,7 @@ const Registration = ({onValueChange}) => {
                                   name="motherName"
                                   className="form-control"
                                 />
-                                <ErrorMessage name="motherName" component="div" style={{ color: "red",fontSize:"11px" }} />
+                                <ErrorMessage name="motherName" component="div" style={{ color: "red", fontSize: "11px" }} />
                               </div>
                             </div>
                             <div className="col-md-6 mb-2">
@@ -144,7 +155,7 @@ const Registration = ({onValueChange}) => {
                                   name="fatherName"
                                   className="form-control"
                                 />
-                                <ErrorMessage name="fatherName" component="div" style={{ color: "red",fontSize:"11px" }} />
+                                <ErrorMessage name="fatherName" component="div" style={{ color: "red", fontSize: "11px" }} />
                               </div>
                             </div>
                           </div>
@@ -159,7 +170,7 @@ const Registration = ({onValueChange}) => {
                               name="address"
                               className="form-control"
                             />
-                            <ErrorMessage name="address" component="div" style={{ color: "red",fontSize:"11px" }} />
+                            <ErrorMessage name="address" component="div" style={{ color: "red", fontSize: "11px" }} />
                           </div>
 
                           {/* Gender Section */}
@@ -189,47 +200,26 @@ const Registration = ({onValueChange}) => {
                                 Male
                               </label>
                             </div>
-                            <ErrorMessage name="gender" component="div" style={{ color: "red",fontSize:"11px" }} />
+                            <ErrorMessage name="gender" component="div" style={{ color: "red", fontSize: "11px" }} />
                           </div>
 
                           {/* State and City Select */}
                           <div className="row">
                             <div className="col-md-6 mb-2">
                               <Field as="select" name="state" className="form-control" value={state}
-                             onChange={(e) => {handleStateChange(e)}}>
+                                onChange={(e) => handleStateChange(e, setFieldValue)}>
                                 <option value="">State</option>
                                 <option value="Bihar">Bihar</option>
                                 <option value="Jharkhand">Jharkhand</option>
                                 <option value="West Bengal">West Bengal</option>
                               </Field>
-                              {/* {values.state && (
-                                <small className="text-muted">
-                                  You selected state {values.state}.
-                                </small>
-                              )} */}
-                                {/* <ErrorMessage name="state" component="div" style={{ color: "red",fontSize:"11px"}} /> */}
+                              <ErrorMessage name="state" component="div" style={{ color: "red", fontSize: "11px" }} />
                             </div>
-                            {/* <div className="col-md-6 mb-2">
-                              <Field as="select" name="city" className="form-control" value={district} onChange={(e) => setDistrict(e.target.value)}>
-                               <option value="">Select District</option> */}
-                                <DistrictNameBlockName selectedState={state} onDistrictChange={handleDistrictChange} />
-                              {/* </Field>
-                              <ErrorMessage name="city" component="div" style={{ color: "red",fontSize:"11px" }} />
-                            </div> */}
-
-
-                            {/* <div className="col-md-6 mb-2">
-                              <Field as="select" name="city" className="form-control" value={block} onChange={(e) => setBlock(e.target.value)}>
-                               <option value="">Select Block</option> */}
-                               <Block state={state} district={district} />
-                              {/* </Field>
-                              <ErrorMessage name="city" component="div" style={{ color: "red",fontSize:"11px" }} />
-                            </div> */}
+                            <DistrictNameBlockName selectedState={state} onDistrictChange={(e) => handleDistrictChange(e, setFieldValue)} />
+                            <ErrorMessage name="district" component="div" style={{ color: "red", fontSize: "11px" }} />
+                            <Block state={state} district={district} />
                           </div>
 
-                          
-
-                          {/* Date, Pincode, Class Roll, Email */}
                           <div className="row">
                             <div className="col-md-6">
                               <div className="form-outline mb-2">
@@ -237,7 +227,7 @@ const Registration = ({onValueChange}) => {
                                   DOB
                                 </label>
                                 <Field type="date" id="form3Example9" name="dob" className="form-control" />
-                                <ErrorMessage name="dob" component="div" style={{ color: "red",fontSize:"11px" }} />
+                                <ErrorMessage name="dob" component="div" style={{ color: "red", fontSize: "11px" }} />
                               </div>
                             </div>
                             <div className="col-md-6">
@@ -251,7 +241,7 @@ const Registration = ({onValueChange}) => {
                                   name="pincode"
                                   className="form-control"
                                 />
-                                <ErrorMessage name="pincode" component="div" style={{ color: "red",fontSize:"11px" }} />
+                                <ErrorMessage name="pincode" component="div" style={{ color: "red", fontSize: "11px" }} />
                               </div>
                             </div>
                             <div className="col-md-6">
@@ -259,19 +249,13 @@ const Registration = ({onValueChange}) => {
                                 <label className="form-label" htmlFor="form3Example99">
                                   Student Class
                                 </label>
-                                {/* <Field
-                                  type="number"
-                                  id="form3Example99"
-                                  name="classRoll"
-                                  className="form-control"
-                                /> */}
                                 <Field as="select" name="studentClass" className="form-control">
-                                <option value="">Student Class</option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                              </Field>
-                                <ErrorMessage name="studentClass" component="div" style={{ color: "red",fontSize:"11px" }} />
+                                  <option value="">Student Class</option>
+                                  <option value="1">1</option>
+                                  <option value="2">2</option>
+                                  <option value="3">3</option>
+                                </Field>
+                                <ErrorMessage name="studentClass" component="div" style={{ color: "red", fontSize: "11px" }} />
                               </div>
                             </div>
                             <div className="col-md-6">
@@ -286,7 +270,7 @@ const Registration = ({onValueChange}) => {
                                   className="form-control"
                                   required
                                 />
-                                <ErrorMessage name="email" component="div" style={{ color: "red",fontSize:"11px",fontSize:"11px" }} />
+                                <ErrorMessage name="email" component="div" style={{ color: "red", fontSize: "11px" }} />
                               </div>
                             </div>
                           </div>
@@ -310,8 +294,7 @@ const Registration = ({onValueChange}) => {
         </Form>
       )}
     </Formik>
-
-    )
-}
+  );
+};
 
 export default Registration;
