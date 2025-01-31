@@ -9,11 +9,12 @@ const Card = ({onSelect}) => {
     };
     console.log("card",onSelect);
     const handleCard = ()=>{
-        onSelect(true);
+        setStudentClass(studentClass);
+        onSelect([true,studentClass]);
     }
     return (
             <div className="col-md-3">
-                <div className="card m-1" style={{ width: "18rem;" }}>
+                <div className="card m-1" style={{ width: "18rem" }}>
                     <img className="card-img-top" style={divStyle} />
                     <div className="card-body p-2">
                         <h5 className="card-title">Student Registration</h5>

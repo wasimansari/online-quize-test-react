@@ -22,6 +22,8 @@ const Dashboard = () => {
   const [isRegistrationVisible, setIsRegistrationVisible] = useState(false);
   const [registrationData, setRegistrationData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectClass, setSelectClass] = useState();
+  const [registerStudentList, setRegisterStudentList] = useState(null)
   const getNameFromEmail = (email)=> {
     const username = email.split('@')[0];
     const name = username.charAt(0).toUpperCase() + username.slice(1);
@@ -38,26 +40,29 @@ const Dashboard = () => {
   }, [loginStatus.email]);
 
   useEffect(() => {
-    const fetchRegistrationData = async () => {
-      try {
-        const usersRef = ref(database, 'registrations/');
-        const snapshot = await get(usersRef);
-
-        if (snapshot.exists()) {
-          setRegistrationData(snapshot.val());
-          console.log("Fetched data:", snapshot.val());
-          console.log("fetched registration : ",registrationData)
-        } else {
-          console.log("No registration data found.");
-        }
-      } catch (error) {
-        console.error("Error fetching registration data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchRegistrationData();
   }, []);
+
+  const fetchRegistrationData = async () => {
+    try {
+      const usersRef = ref(database, 'registrations/');
+      const snapshot = await get(usersRef);
+
+      if (snapshot.exists()) {
+        setRegistrationData(snapshot.val());
+        console.log("Fetched data:", snapshot.val());
+        const data = snapshot.val();
+        setRegisterStudentList(data);
+        console.log("fetched registration : ",registrationData)
+      } else {
+        console.log("No registration data found.");
+      }
+    } catch (error) {
+      console.error("Error fetching registration data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -85,7 +90,32 @@ const Dashboard = () => {
     }
   };
   const handleRegistration = (value)=>{
-    setIsRegistrationVisible(value);
+    fetchRegistrationData();
+    const updatedClass = value[1];
+    setSelectClass(updatedClass);
+    setIsRegistrationVisible(value[0]);
+    isRegisterStudent(updatedClass);
+};
+
+const isRegisterStudent = (updatedClass) => {
+  if (loading) {
+    console.log("Data is still loading...");
+    return;
+  }
+
+  if (!registerStudentList) {
+    console.log("registerStudentList is not available.");
+    return;
+  }
+
+  const classData = registerStudentList[updatedClass];
+
+  if (classData) {
+    const filteredStudents = classData[updatedClass]?.filter(student => student.email === loginStatus.email);
+    console.log(filteredStudents);
+  } else {
+    console.log("No data found for class", updatedClass);
+  }
 };
 
   return (
