@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged,signOut } from "firebase/auth";
 import { getDatabase,set, ref, get } from "firebase/database";
 import { stateList } from "../utills/Api";
+import { faListSquares } from "@fortawesome/free-solid-svg-icons/faListSquares";
 
 const firebaseConfig = {
     apiKey: "AIzaSyC5lfHfPbSh3bTkqzQyPW2vdM2098Nj2bk",
@@ -26,31 +27,20 @@ export const FirebaseProvider = (props)=>{
   console.log(stateList)
     const [loginStatus, setLoginStatus] = useState(null);
     const [states, setStates] = useState([]);
-    const [districts, setDistricts] = useState([]);
+    const [isHomeClick, setIsHomeClick] = useState(false);
     const [blocks, setBlocks] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isSuccess,setIsSuccess]=useState(false);
 
     useEffect(() => {
-      const fetchData = async () => {
-        try {
-          // Replace with your API URL
-          const response = await fetch("https://github.com/sab99r/Indian-States-And-Districts/blob/master/states-and-districts.json");
-          const data = await response.json();
-          
-          setStates(data.states);
-          console.log("states: ",states)
-          setDistricts(data.districts);
-          setBlocks(data.blocks);
-        } catch (err) {
-          setError(err.message);
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchData();
-    }, []);
+      console.log("Updated isHomeClick state:", isHomeClick);
+    }, [isHomeClick]);
+
+    const handleCancel = () => {
+      setIsHomeClick((prev) => !prev);
+      console.log("🔄 handleCancel triggered, new isHomeClick:", isHomeClick);
+    };
 
     const signupUserWithEmailAndPassword=(email,password)=>{
         return createUserWithEmailAndPassword(firebaseAuth,email,password);
@@ -142,7 +132,7 @@ export const FirebaseProvider = (props)=>{
             address: values.address,
             gender: values.gender,
             state: values.state,
-            city: values.city,
+            district: values.district,
             block: values.block,
             dob: values.dob,
             pincode: values.pincode,
@@ -153,12 +143,12 @@ export const FirebaseProvider = (props)=>{
       
           const classSnapshot = await get(classRef);
           const classData = classSnapshot.exists() ? classSnapshot.val() : {};
-          // Ensure studentClass is an array
           classData[studentClass] = classData[studentClass] || [];
           classData[studentClass].push(newRegistration);
           await set(classRef, classData);
           console.log('User registered successfully!');
           alert('Registration successful!');
+          setIsSuccess(true);
         } catch (error) {
           console.error('Error registering user: ', error);
         }
@@ -167,7 +157,7 @@ export const FirebaseProvider = (props)=>{
         <FirebaseContext.Provider value={{
             signupUserWithEmailAndPassword,putData,signInUserWithEmailAndPassword,
             loginStatus,onAuthStateChange,handleLogout,
-            handleNewRegistration,states
+            handleNewRegistration,states,isSuccess,isHomeClick,setIsHomeClick,handleCancel
             }}>
             {props.children}
         </FirebaseContext.Provider>

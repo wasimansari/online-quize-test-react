@@ -39,7 +39,7 @@ import Admin from './components/Admin';
       },
       {
         path: '/dashboard',
-        element: loginStatus ? <Dashboard /> : <Login />, // Protect Dashboard route
+        element: loginStatus ? <Dashboard /> : <Login />,
         children: [
           {
             path: 'contact',

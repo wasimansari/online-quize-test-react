@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useFirebase } from "../context/Firebase";
 import Registration from "./Registration";
 import { database } from "../context/Firebase";
-import { ref,get } from "../context/Firebase";
+import { ref, get } from "../context/Firebase";
 import Card from "../utills/Card";
 
 const Dashboard = () => {
@@ -23,37 +23,37 @@ const Dashboard = () => {
   const [registrationData, setRegistrationData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectClass, setSelectClass] = useState();
-  const [registerStudentList, setRegisterStudentList] = useState(null)
-  const getNameFromEmail = (email)=> {
-    const username = email.split('@')[0];
+  const [registerStudentList, setRegisterStudentList] = useState(null);
+  const [filterData, setFilterData] = useState(null);
+  const firebase = useFirebase();
+  const getNameFromEmail = (email) => {
+    const username = email.split("@")[0];
     const name = username.charAt(0).toUpperCase() + username.slice(1);
     return name;
-  }
-
+  };
 
   useEffect(() => {
     $("#myButton").click(() => {
       alert("Button clicked using jQuery!");
     });
-  setUserName(getNameFromEmail(loginStatus.email));
-  setIsRegistrationVisible(false)
+    setUserName(getNameFromEmail(loginStatus.email));
+    setIsRegistrationVisible(false);
   }, [loginStatus.email]);
 
   useEffect(() => {
     fetchRegistrationData();
+    console.log("loading dashboard");
   }, []);
 
   const fetchRegistrationData = async () => {
     try {
-      const usersRef = ref(database, 'registrations/');
+      const usersRef = ref(database, "registrations/");
       const snapshot = await get(usersRef);
 
       if (snapshot.exists()) {
         setRegistrationData(snapshot.val());
-        console.log("Fetched data:", snapshot.val());
         const data = snapshot.val();
         setRegisterStudentList(data);
-        console.log("fetched registration : ",registrationData)
       } else {
         console.log("No registration data found.");
       }
@@ -72,7 +72,6 @@ const Dashboard = () => {
     return <div>No data available</div>;
   }
 
-  
   const headingStyle = {
     width: "100%",
     margin: "-23px 0 0 0",
@@ -89,34 +88,34 @@ const Dashboard = () => {
       console.log("Redirecting to login...");
     }
   };
-  const handleRegistration = (value)=>{
+  const handleRegistration = (value) => {
     fetchRegistrationData();
     const updatedClass = value[1];
     setSelectClass(updatedClass);
-    setIsRegistrationVisible(value[0]);
+    const isVisible = value[0];
+    setIsRegistrationVisible(isVisible);
     isRegisterStudent(updatedClass);
-};
+  };
 
-const isRegisterStudent = (updatedClass) => {
-  if (loading) {
-    console.log("Data is still loading...");
-    return;
-  }
-
-  if (!registerStudentList) {
-    console.log("registerStudentList is not available.");
-    return;
-  }
-
-  const classData = registerStudentList[updatedClass];
-
-  if (classData) {
-    const filteredStudents = classData[updatedClass]?.filter(student => student.email === loginStatus.email);
-    console.log(filteredStudents);
-  } else {
-    console.log("No data found for class", updatedClass);
-  }
-};
+  const isRegisterStudent = (updatedClass) => {
+    if (loading) {
+      console.log("Data is still loading...");
+      return;
+    }
+    if (!registerStudentList) {
+      console.log("registerStudentList is not available.");
+      return;
+    }
+    const classData = registerStudentList[updatedClass];
+    if (classData) {
+      const filteredStudents = classData[updatedClass]?.filter(
+        (student) => student.email === loginStatus.email
+      );
+      setFilterData(filteredStudents);
+    } else {
+      console.log("No data found for class", updatedClass);
+    }
+  };
 
   return (
     <div className="wrapper d-flex align-items-stretch">
@@ -142,7 +141,8 @@ const isRegisterStudent = (updatedClass) => {
             </li>
             <li className="nav-item">
               <a className="nav-link" href="#">
-                <FontAwesomeIcon icon="fa-user" /> <span>User Name : {userName} </span>
+                <FontAwesomeIcon icon="fa-user" />{" "}
+                <span>User Name : {userName} </span>
               </a>
             </li>
             <li className="nav-item">
@@ -156,12 +156,31 @@ const isRegisterStudent = (updatedClass) => {
             </li>
           </ul>
         </div>
-        {!isChildRoute && <Home status={onlineStatus} />}
-        {isAdminRoute &&  (
-            isRegistrationVisible ? (<Registration onValueChange={{handleRegistration,isRegistrationVisible}} />) : (<Card onSelect={handleRegistration}/>) //<h4 className="d-flex justify-content-center align-items-center"> Befor online test you should registration first:  <button className="btn btn-primary" onClick={handleRegistration}>Registration</button></h4>)
-           
-          )}
-          {/* <Card/> */}
+        {!isChildRoute && <Home status={{onlineStatus,isRegistrationVisible,handleRegistration}} />}
+        <div className="container">
+          <div className="row">
+            {isAdminRoute &&
+              (isRegistrationVisible ? (
+                <Registration
+                  onValueChange={{
+                    handleRegistration,
+                    isRegistrationVisible,
+                    selectClass,
+                    loginStatus,
+                    filterData,
+                  }}
+                />
+              ) : (
+                <Card onSelect={handleRegistration} />
+              ))
+            }
+            {firebase.isSuccess && !isRegistrationVisible ? (
+              <Card onSelect={handleRegistration} />
+            ) : (
+              ""
+            )}
+          </div>
+        </div>
         <Outlet />
       </div>
     </div>
