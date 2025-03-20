@@ -3,6 +3,7 @@ import '../css/login.css';
 import { useNavigate } from "react-router-dom";
 import { Link } from 'react-router-dom';
 import { useFirebase } from "../context/Firebase";
+import Swal from 'sweetalert2'
 
 const Login = () => {
 const [email, setEmail] = useState();
@@ -15,11 +16,20 @@ const firebase = useFirebase();
         try
         {
             await firebase.signInUserWithEmailAndPassword(email,password);
-            alert('User signed In successfully!');
+            Swal.fire({
+                title: 'Successful!',
+                text: 'Do you want to continue',
+                icon: 'success',
+                confirmButtonText: 'Ok'
+              });
             navigate('/dashboard');
         }catch (error) {
-            console.error('Error signing up:', error.message);
-            alert(error.message);
+            Swal.fire({
+                title: 'error!',
+                text: error.message,
+                icon: 'error',
+                confirmButtonText: 'Ok'
+              });
           }
 
     }

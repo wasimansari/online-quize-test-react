@@ -32,7 +32,7 @@ const Card = ({onSelect}) => {
                                 ))
                             }
                         </select>
-                        <button className="btn btn-primary mt-2" onClick={handleCard}>Registration</button>
+                        <button className="btn btn-primary mt-2" disabled={!studentClass} onClick={handleCard}>Registration</button>
                     </div>
                 </div>
             </div>

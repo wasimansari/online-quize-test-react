@@ -10,6 +10,7 @@ import Registration from "./Registration";
 import { database } from "../context/Firebase";
 import { ref, get } from "../context/Firebase";
 import Card from "../utills/Card";
+import Swal from 'sweetalert2'
 
 const Dashboard = () => {
   const location = useLocation();
@@ -44,6 +45,7 @@ const Dashboard = () => {
     fetchRegistrationData();
     console.log("loading dashboard");
   }, []);
+
 
   const fetchRegistrationData = async () => {
     try {
@@ -89,12 +91,63 @@ const Dashboard = () => {
     }
   };
   const handleRegistration = (value) => {
-    fetchRegistrationData();
     const updatedClass = value[1];
     setSelectClass(updatedClass);
+    
     const isVisible = value[0];
-    setIsRegistrationVisible(isVisible);
-    isRegisterStudent(updatedClass);
+    const emailToCheck = loginStatus.email;
+    const students = registerStudentList.flatMap((entry) => {
+      if (!entry) return []; // Skip null values
+      if (Array.isArray(entry)) return entry.flat(Infinity); // Flatten nested arrays
+      if (typeof entry === "object") return Object.values(entry).flat(); // Extract arrays from objects
+      return [];
+    });
+
+    const existingStudent = students.find(
+      (student) =>
+        //console.log("student : ", student),
+        student.email === emailToCheck && student.studentClass === updatedClass
+    );
+
+    if (existingStudent) {
+      Swal.fire({
+        title: "error!",
+        text: `User already registered in class ${updatedClass}`,
+        icon: "error",
+        confirmButtonText: "Ok",
+      });
+      //console.log("Registration page not rendered. User already registered.");
+      setIsRegistrationVisible(false);
+      isRegisterStudent(existingStudent.studentClass);
+      return;
+    } else {
+      setIsRegistrationVisible(isVisible);
+    }
+
+    // Continue with registration logic
+    setRegistrationData(value);
+    console.log("Registration data set:", value);
+
+    // Loop through the registration data to find a match
+    // for (const classKey in registrationData) {
+    //     const registrations = registrationData[classKey];
+    //     if (Array.isArray(registrations)) {
+    //         exists = registrations.some((registration) =>
+    //             registration.email === emailToCheck && registration.studentClass === updatedClass
+    //         );
+    //         if (exists) break; // Exit loop if a match is found
+    //     }
+    // }
+
+    // if (exists) {
+    //     console.log("Registration already exists for this email and class.");
+    //     setIsRegistrationVisible(false); // Stop rendering the registration page
+    // } else {
+    //     isRegisterStudent(updatedClass); // Proceed with registration
+    // }
+
+    // setIsRegistrationVisible(isVisible);
+    // isRegisterStudent(updatedClass);
   };
 
   const isRegisterStudent = (updatedClass) => {
@@ -156,7 +209,11 @@ const Dashboard = () => {
             </li>
           </ul>
         </div>
-        {!isChildRoute && <Home status={{onlineStatus,isRegistrationVisible,handleRegistration}} />}
+        {!isChildRoute && (
+          <Home
+            status={{ onlineStatus, isRegistrationVisible, handleRegistration }}
+          />
+        )}
         <div className="container">
           <div className="row">
             {isAdminRoute &&
@@ -172,8 +229,7 @@ const Dashboard = () => {
                 />
               ) : (
                 <Card onSelect={handleRegistration} />
-              ))
-            }
+              ))}
             {firebase.isSuccess && !isRegistrationVisible ? (
               <Card onSelect={handleRegistration} />
             ) : (

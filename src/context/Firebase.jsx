@@ -49,6 +49,10 @@ export const FirebaseProvider = (props)=>{
     const signInUserWithEmailAndPassword=(email,password)=>{
         return signInWithEmailAndPassword(firebaseAuth,email,password);
     }
+
+    const sendPasswordResetEmail=(firebaseAuth,email)=>{
+        return sendPasswordResetEmail(firebaseAuth,email);
+    }
     
     const onAuthStateChange=()=>{
         return onAuthStateChanged(firebaseAuth,user=>{
