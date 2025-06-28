@@ -32,6 +32,7 @@ export const FirebaseProvider = (props)=>{
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isSuccess,setIsSuccess]=useState(false);
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
       console.log("Updated isHomeClick state:", isHomeClick);
@@ -53,6 +54,31 @@ export const FirebaseProvider = (props)=>{
     const sendPasswordResetEmail=(firebaseAuth,email)=>{
         return sendPasswordResetEmail(firebaseAuth,email);
     }
+
+    const forgotPassword = async (email) => {
+      if (!email) {
+        return "Please enter your email.";
+      }
+      try {
+        await sendPasswordResetEmail(auth, email);
+        return "Password reset email sent! Check your inbox.";
+      } catch (error) {
+        return error.message;
+      }
+    };
+
+    const changePassword = async (newPassword) => {
+      if (auth.currentUser) {
+        try {
+          await updatePassword(auth.currentUser, newPassword);
+          return "Password updated successfully!";
+        } catch (error) {
+          return error.message;
+        }
+      } else {
+        return "User not logged in!";
+      }
+    };
     
     const onAuthStateChange=()=>{
         return onAuthStateChanged(firebaseAuth,user=>{
@@ -162,6 +188,7 @@ export const FirebaseProvider = (props)=>{
             signupUserWithEmailAndPassword,putData,signInUserWithEmailAndPassword,
             loginStatus,onAuthStateChange,handleLogout,
             handleNewRegistration,states,isSuccess,isHomeClick,setIsHomeClick,handleCancel
+            ,user, setUser, forgotPassword, changePassword
             }}>
             {props.children}
         </FirebaseContext.Provider>
